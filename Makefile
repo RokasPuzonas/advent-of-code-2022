@@ -1,6 +1,5 @@
 main: main.c
-	mkdir -p build
-	gcc -o build/main main.c -lcurl
+	gcc -o main main.c -lcurl
 
 run: main
-	./build/main
+	./main $(day)

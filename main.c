@@ -9,6 +9,7 @@
 #include "aoc.h"
 
 #include "day1.c"
+#include "day2.c"
 
 Solution *find_solution(int day)
 {
@@ -132,7 +133,7 @@ int main(int argc, char** argv) {
 		input_file = "input.txt";
 	} else {
 		char* session = getenv("AOC_SESSION");
-		if (session && !download_input(1, "input.txt", session)) {
+		if (session && !download_input(day, "input.txt", session)) {
 			input_file = "input.txt";
 		} else {
 			fprintf(stderr, "Missing input file");

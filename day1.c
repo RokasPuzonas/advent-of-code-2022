@@ -16,7 +16,7 @@ typedef struct {
 	size_t count;
 } Data;
 
-static void *parse(char **lines, int line_count) {
+static void *day1_parse(char **lines, int line_count) {
 	int elf_indexes[300] = { 0 };
 	int elf_count = 1;
 	for (int i = 1; i < line_count; i++) {
@@ -45,7 +45,7 @@ static void *parse(char **lines, int line_count) {
 	return data;
 }
 
-static int part1(void *p) {
+static int day1_part1(void *p) {
 	Data *data = (Data*)p;
 	int max_calories = 0;
 	for (int i = 0; i < data->count; i++) {
@@ -58,7 +58,7 @@ static int part1(void *p) {
 	return max_calories;
 }
 
-static int part2(void *p) {
+static int day1_part2(void *p) {
 	Data *data = (Data*)p;
 	int max_calories1 = 0;
 	int max_calories2 = 0;
@@ -82,4 +82,4 @@ static int part2(void *p) {
 	return max_calories1 + max_calories2 + max_calories3;
 }
 
-ADD_SOLUTION(1, parse, part1, part2);
+ADD_SOLUTION(1, day1_parse, day1_part1, day1_part2);

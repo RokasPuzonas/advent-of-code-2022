@@ -4,25 +4,26 @@
 #include <stdbool.h>
 
 typedef int (*solution_cb)(void*);
+typedef void* (*parse_cb)(char** lines, int count);
 typedef struct {
 	int day;
 
-	void* (*parse)(char** lines, int count);
-	int (*part1)(void* data);
-	int (*part2)(void* data);
+	parse_cb parse;
+	solution_cb part1;
+	solution_cb part2;
 } Solution;
 
 // Macro magic for easy of use
-#define ADD_SOLUTION(_day, parse, part1, part2)                                                    \
-		static Solution ptr_##parse;                                                                   \
-		static Solution ptr_##part1;                                                                   \
-		static Solution ptr_##part2                                                                    \
-		__attribute((used, section("g_solutions"))) = {                                                \
-			.parse = parse,                                                                              \
-			.part1 = part1,                                                                              \
-			.part2 = part2,                                                                              \
-			.day = _day                                                                                  \
-		}
+#define ADD_SOLUTION(_day, _parse, _part1, _part2)                                                 \
+	static parse_cb ptr_##_parse;                                                                    \
+	static solution_cb ptr_##_part1;                                                                 \
+	static Solution ptr_##_part2                                                                     \
+	__attribute((used, section("g_solutions"))) = {                                                  \
+		.parse = _parse,                                                                               \
+		.part1 = _part1,                                                                               \
+		.part2 = _part2,                                                                               \
+		.day = _day                                                                                    \
+	}
 
 #define SOLUTIONS ({                                                                               \
 			extern Solution __start_##g_solutions;                                                       \
