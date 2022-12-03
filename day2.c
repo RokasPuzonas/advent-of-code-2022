@@ -12,7 +12,8 @@ typedef struct {
 	size_t count;
 } day2_Data;
 
-static void *day2_parse(char **lines, int line_count) {
+static void *day2_parse(char **lines, int line_count)
+{
 	day2_Data *data = calloc(1, sizeof(day2_Data));
 	data->count = line_count;
 	data->rounds = calloc(line_count, sizeof(Round));
@@ -25,7 +26,8 @@ static void *day2_parse(char **lines, int line_count) {
 	return data;
 }
 
-static int day2_part1(void *p) {
+static int day2_part1(void *p)
+{
 	day2_Data *data = (day2_Data*)p;
 	int result = 0;
 	for (int i = 0; i < data->count; i++) {
@@ -54,7 +56,8 @@ static int day2_part1(void *p) {
 	return result;
 }
 
-static int day2_part2(void *p) {
+static int day2_part2(void *p)
+{
 	day2_Data *data = (day2_Data*)p;
 	int result = 0;
 	for (int i = 0; i < data->count; i++) {
