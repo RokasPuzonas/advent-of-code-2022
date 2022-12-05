@@ -2,36 +2,32 @@
 #include <stdlib.h>
 
 #include "aoc.h"
+#include "vec.h"
 
 typedef struct {
 	char you, opponent;
 } Round;
 
-typedef struct {
-	Round *rounds;
-	size_t count;
-} day2_Data;
-
 static void *day2_parse(char **lines, int line_count)
 {
-	day2_Data *data = calloc(1, sizeof(day2_Data));
-	data->count = line_count;
-	data->rounds = calloc(line_count, sizeof(Round));
+	Vec *vec = vec_malloc(line_count);
 
 	for (int i = 0; i < line_count; i++) {
-		data->rounds[i].opponent = lines[i][0];
-		data->rounds[i].you = lines[i][2];
+		Round *round = malloc(sizeof(Round));
+		round->opponent = lines[i][0];
+		round->you = lines[i][2];
+		vec_push(vec, round);
 	}
 
-	return data;
+	return vec;
 }
 
 static int day2_part1(void *p)
 {
-	day2_Data *data = (day2_Data*)p;
+	Vec *rounds = p;
 	int result = 0;
-	for (int i = 0; i < data->count; i++) {
-		Round *round = &data->rounds[i];
+	for (int i = 0; i < rounds->count; i++) {
+		Round *round = rounds->data[i];
 		char you = round->you;
 		char opponent = round->opponent;
 
@@ -58,10 +54,10 @@ static int day2_part1(void *p)
 
 static int day2_part2(void *p)
 {
-	day2_Data *data = (day2_Data*)p;
+	Vec *data = p;
 	int result = 0;
 	for (int i = 0; i < data->count; i++) {
-		Round *round = &data->rounds[i];
+		Round *round = data->data[i];
 		char you = round->you;
 		char opponent = round->opponent;
 

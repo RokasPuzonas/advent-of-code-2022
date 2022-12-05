@@ -4,28 +4,15 @@
 #include <string.h>
 
 #include "aoc.h"
-
-typedef struct {
-	char *contents;
-	size_t size;
-} Backpack;
-
-typedef struct {
-	Backpack *backpacks;
-	size_t count;
-} day3_Data;
+#include "vec.h"
 
 static void *day3_parse(char **lines, int line_count)
 {
-	day3_Data *data = calloc(1, sizeof(day3_Data));
-	Backpack *backpacks = calloc(line_count, sizeof(Backpack));
-	data->backpacks = backpacks;
-	data->count = line_count;
+	Vec *vec = vec_malloc(line_count);
 	for (size_t i = 0; i < line_count; i++) {
-		backpacks[i].size = strlen(lines[i]);
-		backpacks[i].contents = lines[i];
+		vec_push(vec, lines[i]);
 	}
-	return data;
+	return vec;
 }
 
 static bool contains(char needle, char* haystack, size_t len)
@@ -60,11 +47,12 @@ static int get_priority(char c)
 
 static int day3_part1(void *p)
 {
-	day3_Data *data = (day3_Data*)p;
+	Vec *vec = p;
 	int result = 0;
-	for (size_t i = 0; i < data->count; i++) {
-		Backpack *b = &data->backpacks[i];
-		char common = find_common(b->contents, b->contents+b->size/2, b->size/2);
+	for (size_t i = 0; i < vec->count; i++) {
+		char *b = vec->data[i];
+		int size = strlen(b);
+		char common = find_common(b, b + size/2, size/2);
 		if (common) {
 			result += get_priority(common);
 		} else {
@@ -76,17 +64,20 @@ static int day3_part1(void *p)
 
 static int day3_part2(void *p)
 {
-	day3_Data *data = (day3_Data*)p;
+	Vec *vec = p;
 	int result = 0;
-	for (size_t i = 0; i < data->count; i+=3) {
-		Backpack *b1 = &data->backpacks[i+0];
-		Backpack *b2 = &data->backpacks[i+1];
-		Backpack *b3 = &data->backpacks[i+2];
+	for (size_t i = 0; i < vec->count; i+=3) {
+		char *b1 = vec->data[i+0];
+		char *b2 = vec->data[i+1];
+		char *b3 = vec->data[i+2];
+		int size1 = strlen(b1);
+		int size2 = strlen(b2);
+		int size3 = strlen(b3);
 
 		bool found = false;
-		for (size_t j = 0; j < b1->size; j++) {
-			char c = b1->contents[j];
-			if (contains(c, b2->contents, b2->size) && contains(c, b3->contents, b3->size)) {
+		for (size_t j = 0; j < size1; j++) {
+			char c = b1[j];
+			if (contains(c, b2, size2) && contains(c, b3, size3)) {
 				result += get_priority(c);
 				found = true;
 				break;

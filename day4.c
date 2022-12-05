@@ -4,6 +4,7 @@
 #include <sys/param.h>
 
 #include "aoc.h"
+#include "vec.h"
 
 typedef struct {
 	int from, to;
@@ -13,11 +14,6 @@ typedef struct {
 	Range first;
 	Range second;
 } DoubleRange;
-
-typedef struct {
-	DoubleRange *ranges;
-	size_t count;
-} day4_Data;
 
 static inline void day4_parse_range(Range *range, char *s)
 {
@@ -36,23 +32,23 @@ static void day4_parse_line(DoubleRange *double_range, char *line)
 
 static void *day4_parse(char **lines, int line_count)
 {
-	day4_Data *data = calloc(1, sizeof(day4_Data));
-	DoubleRange *ranges = calloc(line_count, sizeof(DoubleRange));
-	data->ranges = ranges;
-	data->count = line_count;
+	Vec *vec = vec_malloc(line_count);
 	for (size_t i = 0; i < line_count; i++) {
-		day4_parse_line(&data->ranges[i], lines[i]);
+		DoubleRange *double_range = malloc(sizeof(DoubleRange));
+		vec_push(vec, double_range);
+		day4_parse_line(double_range, lines[i]);
 	}
-	return data;
+	return vec;
 }
 
 static int day4_part1(void *p)
 {
-	day4_Data *data = (day4_Data*)p;
+	Vec *vec = p;
 	int result = 0;
-	for (int i = 0; i < data->count; i++) {
-		Range *range1 = &data->ranges[i].first;
-		Range *range2 = &data->ranges[i].second;
+	for (int i = 0; i < vec->count; i++) {
+		DoubleRange *double_range = vec->data[i];
+		Range *range1 = &double_range->first;
+		Range *range2 = &double_range->second;
 		if ((range1->from <= range2->from && range1->to >= range2->to) ||
 				(range2->from <= range1->from && range2->to >= range1->to)) {
 			result++;
@@ -63,11 +59,12 @@ static int day4_part1(void *p)
 
 static int day4_part2(void *p)
 {
-	day4_Data *data = (day4_Data*)p;
+	Vec *vec = p;
 	int result = 0;
-	for (int i = 0; i < data->count; i++) {
-		Range *range1 = &data->ranges[i].first;
-		Range *range2 = &data->ranges[i].second;
+	for (int i = 0; i < vec->count; i++) {
+		DoubleRange *double_range = vec->data[i];
+		Range *range1 = &double_range->first;
+		Range *range2 = &double_range->second;
 		if ((range1->from <= range2->from && range1->to >= range2->to) ||
 				(range2->from <= range1->from && range2->to >= range1->to) ||
 				MIN(range1->to, range2->to) >= MAX(range1->from, range2->from)) {
