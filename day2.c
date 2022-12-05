@@ -22,7 +22,7 @@ static void *day2_parse(char **lines, int line_count)
 	return vec;
 }
 
-static int day2_part1(void *p)
+static void day2_part1(void *p)
 {
 	Vec *rounds = p;
 	int result = 0;
@@ -49,10 +49,10 @@ static int day2_part1(void *p)
 			result += 6;
 		}
 	}
-	return result;
+	printf("%d\n", result);
 }
 
-static int day2_part2(void *p)
+static void day2_part2(void *p)
 {
 	Vec *data = p;
 	int result = 0;
@@ -81,7 +81,7 @@ static int day2_part2(void *p)
 			result += 6;
 		}
 	}
-	return result;
+	printf("%d\n", result);
 }
 
 ADD_SOLUTION(2, day2_parse, day2_part1, day2_part2);

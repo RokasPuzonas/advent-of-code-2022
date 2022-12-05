@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-typedef int (*solution_cb)(void*);
+typedef void (*solution_cb)(void*);
 typedef void* (*parse_cb)(char** lines, int count);
 typedef struct {
 	int day;

@@ -12,6 +12,7 @@
 #include "day2.c"
 #include "day3.c"
 #include "day4.c"
+#include "day5.c"
 
 Solution *find_solution(int day)
 {
@@ -156,8 +157,10 @@ int main(int argc, char** argv) {
 
 	void* parsed = solution->parse(lines, line_count);
 
-	printf("part1: %d\n", solution->part1(parsed));
-	printf("part2: %d\n", solution->part2(parsed));
+	printf("part1:\n");
+	solution->part1(parsed);
+	printf("part2:\n");
+	solution->part2(parsed);
 
 	return 0;
 }

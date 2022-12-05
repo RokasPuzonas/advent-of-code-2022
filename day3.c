@@ -45,7 +45,7 @@ static int get_priority(char c)
 		return 0;
 }
 
-static int day3_part1(void *p)
+static void day3_part1(void *p)
 {
 	Vec *vec = p;
 	int result = 0;
@@ -59,10 +59,10 @@ static int day3_part1(void *p)
 			fprintf(stderr, "Unknown common char at line: %zu\n", i+1);
 		}
 	}
-	return result;
+	printf("%d\n", result);
 }
 
-static int day3_part2(void *p)
+static void day3_part2(void *p)
 {
 	Vec *vec = p;
 	int result = 0;
@@ -88,7 +88,7 @@ static int day3_part2(void *p)
 			fprintf(stderr, "Unknown common char at line: %zu-%zu\n", i+1, i+3);
 		}
 	}
-	return result;
+	printf("%d\n", result);
 }
 
 ADD_SOLUTION(3, day3_parse, day3_part1, day3_part2);

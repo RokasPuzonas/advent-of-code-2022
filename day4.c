@@ -41,7 +41,7 @@ static void *day4_parse(char **lines, int line_count)
 	return vec;
 }
 
-static int day4_part1(void *p)
+static void day4_part1(void *p)
 {
 	Vec *vec = p;
 	int result = 0;
@@ -54,10 +54,10 @@ static int day4_part1(void *p)
 			result++;
 		}
 	}
-	return result;
+	printf("%d\n", result);
 }
 
-static int day4_part2(void *p)
+static void day4_part2(void *p)
 {
 	Vec *vec = p;
 	int result = 0;
@@ -71,7 +71,7 @@ static int day4_part2(void *p)
 			result++;
 		}
 	}
-	return result;
+	printf("%d\n", result);
 }
 
 

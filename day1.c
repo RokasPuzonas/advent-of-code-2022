@@ -46,7 +46,7 @@ static void *day1_parse(char **lines, int line_count)
 	return data;
 }
 
-static int day1_part1(void *p)
+static void day1_part1(void *p)
 {
 	Data *data = (Data*)p;
 	int max_calories = 0;
@@ -57,10 +57,10 @@ static int day1_part1(void *p)
 		}
 		max_calories = MAX(max_calories, calories);
 	}
-	return max_calories;
+	printf("%d\n", max_calories);
 }
 
-static int day1_part2(void *p)
+static void day1_part2(void *p)
 {
 	Data *data = (Data*)p;
 	int max_calories1 = 0;
@@ -82,7 +82,7 @@ static int day1_part2(void *p)
 			max_calories3 = calories;
 		}
 	}
-	return max_calories1 + max_calories2 + max_calories3;
+	printf("%d\n", max_calories1 + max_calories2 + max_calories3);
 }
 
 ADD_SOLUTION(1, day1_parse, day1_part1, day1_part2);
