@@ -23,17 +23,18 @@ static inline void vec_push(Vec *vec, void* value)
 {
 	if (vec->count >= vec->capacity) {
 		vec->capacity = (vec->capacity + 1) * 2;
-		vec->data = (void**)realloc(vec->data, vec->capacity);
+		vec->data = (void**)realloc(vec->data, vec->capacity * sizeof(void*));
 	}
 	vec->data[vec->count++] = value;
 }
 
-inline void vec_pop(Vec* vec)
+static inline void *vec_pop(Vec* vec)
 {
 	vec->count--;
+	return vec->data[vec->count];
 }
 
-inline void vec_free(Vec *v)
+static inline void vec_free(Vec *v)
 {
 	free(v->data);
 	free(v);
