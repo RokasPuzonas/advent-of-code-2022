@@ -16,6 +16,7 @@
 #include "day6.c"
 #include "day7.c"
 #include "day8.c"
+#include "day9.c"
 
 Solution *find_solution(int day)
 {
