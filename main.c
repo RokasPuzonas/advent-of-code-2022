@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -116,6 +117,13 @@ void print_solutions()
 	fprintf(stderr, "\n");
 }
 
+uint64_t get_current_time_us()
+{
+	struct timespec time;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &time);
+	return time.tv_sec * 1000000 + time.tv_nsec / 1000;
+}
+
 int main(int argc, char** argv) {
 	if (argc < 2) {
 		fprintf(stderr, "Usage: %s <day> [input.txt]\n", argv[0]);
@@ -165,9 +173,14 @@ int main(int argc, char** argv) {
 	void* parsed = solution->parse(lines, line_count);
 
 	printf("part1:\n");
+	uint64_t start_time = get_current_time_us();
 	solution->part1(parsed);
+	printf("Part 1 took %ldus\n\n", get_current_time_us() - start_time);
+
 	printf("part2:\n");
+	start_time = get_current_time_us();
 	solution->part2(parsed);
+	printf("Part 2 took %ldus\n", get_current_time_us() - start_time);
 
 	return 0;
 }
