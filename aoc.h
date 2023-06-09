@@ -14,25 +14,25 @@ typedef struct {
 } Solution;
 
 // Macro magic for easy of use
-#define ADD_SOLUTION(_day, _parse, _part1, _part2)                                                 \
-	static parse_cb ptr_##_parse;                                                                    \
-	static solution_cb ptr_##_part1;                                                                 \
-	static Solution ptr_##_part2                                                                     \
-	__attribute((used, section("g_solutions"))) = {                                                  \
-		.parse = _parse,                                                                               \
-		.part1 = _part1,                                                                               \
-		.part2 = _part2,                                                                               \
-		.day = _day                                                                                    \
+#define ADD_SOLUTION(_day, _parse, _part1, _part2)                                                           \
+	static parse_cb ptr_##_parse;                                                                            \
+	static solution_cb ptr_##_part1;                                                                         \
+	static Solution ptr_##_part2                                                                             \
+	__attribute((used, section("g_solutions"))) = {                                                          \
+		.parse = _parse,                                                                                     \
+		.part1 = _part1,                                                                                     \
+		.part2 = _part2,                                                                                     \
+		.day = _day                                                                                          \
 	}
 
-#define SOLUTIONS ({                                                                               \
-			extern Solution __start_##g_solutions;                                                       \
-			&__start_##g_solutions;                                                                      \
+#define SOLUTIONS ({                                                                                         \
+			extern Solution __start_##g_solutions;                                                           \
+			&__start_##g_solutions;                                                                          \
 		})
 
-#define SOLUTIONS_END ({                                                                           \
-			extern Solution __stop_##g_solutions;                                                        \
-			&__stop_##g_solutions;                                                                       \
+#define SOLUTIONS_END ({                                                                                     \
+			extern Solution __stop_##g_solutions;                                                            \
+			&__stop_##g_solutions;                                                                           \
 		})
 
 #define SOLUTIONS_COUNT SOLUTIONS_END - SOLUTIONS

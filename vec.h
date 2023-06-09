@@ -2,7 +2,6 @@
 #define VEC_H_
 
 #include <stdlib.h>
-#include <assert.h>
 
 typedef struct {
 	int count;
