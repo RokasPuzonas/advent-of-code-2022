@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define SIGN(x) (x == 0 ? 0 : (x > 0 ? 1 : -1))
+
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
