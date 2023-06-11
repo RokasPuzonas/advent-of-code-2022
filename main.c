@@ -21,6 +21,7 @@
 #include "day10.c"
 #include "day11.c"
 #include "day12.c"
+#include "day13.c"
 
 Solution *find_solution(int day)
 {
@@ -170,10 +171,12 @@ int main(int argc, char** argv) {
 
 	fclose(f);
 
+	uint64_t start_time = get_current_time_us();
 	void* parsed = solution->parse(lines, line_count);
+	printf("Parsing took %ldus\n", get_current_time_us() - start_time);
 
 	printf("part1:\n");
-	uint64_t start_time = get_current_time_us();
+	start_time = get_current_time_us();
 	solution->part1(parsed);
 	printf("Part 1 took %ldus\n\n", get_current_time_us() - start_time);
 

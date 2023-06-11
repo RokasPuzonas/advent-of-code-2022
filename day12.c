@@ -1,12 +1,11 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
+#include "aoc.h"
 #include "types.h"
 #include "point.h"
-#include "aoc.h"
 
 typedef struct {
 	u8 *map;

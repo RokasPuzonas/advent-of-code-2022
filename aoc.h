@@ -2,6 +2,7 @@
 #define AOC_H_
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef void (*solution_cb)(void*);
 typedef void* (*parse_cb)(char** lines, int count);
