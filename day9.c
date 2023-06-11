@@ -4,7 +4,7 @@
 #include <sys/param.h>
 
 #include "aoc.h"
-#include "point.h"
+#include "vec2.h"
 
 typedef enum {
 	MOVE_DIR_UP,
@@ -106,7 +106,7 @@ static void get_move_direction(MOVE_DIR dir, int *dx, int *dy)
 	}
 }
 
-static void follow_point(Point *tail, Point *head)
+static void follow_point(vec2 *tail, vec2 *head)
 {
 	int diffx = abs(head->x - tail->x);
 	int diffy = abs(head->y - tail->y);
@@ -137,8 +137,8 @@ static void day9_part1(void *p)
 	}
 	map[ox][oy] = true;
 
-	Point head = { 0, 0 };
-	Point tail = { 0, 0 };
+	vec2 head = { 0, 0 };
+	vec2 tail = { 0, 0 };
 	for (int i = 0; i < moves->count; i++) {
 		RopeMove *move = &moves->moves[i];
 		int dx = 0, dy = 0;
@@ -177,7 +177,7 @@ static void day9_part2(void *p)
 	map[ox][oy] = true;
 
 	int rope_size = 10;
-	Point rope[rope_size];
+	vec2 rope[rope_size];
 	for (int i = 0; i < rope_size; i++) {
 		rope[i].x = 0;
 		rope[i].y = 0;
@@ -188,7 +188,7 @@ static void day9_part2(void *p)
 		int dx = 0, dy = 0;
 		get_move_direction(move->dir, &dx, &dy);
 		for (int _ = 0; _ < move->count; _++) {
-			Point *head = &rope[0];
+			vec2 *head = &rope[0];
 			head->x += dx;
 			head->y += dy;
 
@@ -196,7 +196,7 @@ static void day9_part2(void *p)
 				follow_point(&rope[j], &rope[j-1]);
 			}
 
-			Point *tail = &rope[rope_size-1];
+			vec2 *tail = &rope[rope_size-1];
 			map[tail->x+ox][tail->y+oy] = true;
 		}
 	}

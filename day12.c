@@ -5,14 +5,14 @@
 
 #include "aoc.h"
 #include "types.h"
-#include "point.h"
+#include "vec2.h"
 
 typedef struct {
 	u8 *map;
 	u32 width;
 	u32 height;
-	Point_u32 start;
-	Point_u32 end;
+	vec2_u32 start;
+	vec2_u32 end;
 } day12_map;
 
 static void print_day12_map(day12_map *map)
