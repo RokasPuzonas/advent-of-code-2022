@@ -4,7 +4,7 @@
 #include "types.h"
 
 typedef struct {
-	int x, y;
+	i32 x, y;
 } vec2;
 
 #define TYPEDEF_VEC2(type) typedef struct { type x, y; } vec2_##type
