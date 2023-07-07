@@ -28,6 +28,7 @@
 #include "day17.c"
 #include "day18.c"
 #include "day19.c"
+#include "day20.c"
 
 Solution *find_solution(int day)
 {
@@ -184,12 +185,14 @@ int main(int argc, char** argv) {
 	printf("part1:\n");
 	start_time = get_current_time_us();
 	solution->part1(parsed);
-	printf("Part 1 took %ldus\n\n", get_current_time_us() - start_time);
+	u64 part1_duration = get_current_time_us() - start_time;
+	printf("Part 1 took %ldus (%ldms)\n\n", part1_duration, part1_duration/1000);
 
 	printf("part2:\n");
 	start_time = get_current_time_us();
 	solution->part2(parsed);
-	printf("Part 2 took %ldus\n", get_current_time_us() - start_time);
+	u64 part2_duration = get_current_time_us() - start_time;
+	printf("Part 2 took %ldus (%ldms)\n", part2_duration, part2_duration/1000);
 
 	return 0;
 }
