@@ -1,6 +1,7 @@
 #ifndef VEC2_H_
 #define VEC2_H_
 
+#include <stdbool.h>
 #include "types.h"
 
 typedef struct {
@@ -13,5 +14,9 @@ typedef struct {
 
 TYPEDEF_VEC2(u8);
 TYPEDEF_VEC2(u32);
+
+static bool vec2_eq(vec2 *A, i32 x, i32 y) {
+	return A->x == x && A->y == y;
+}
 
 #endif //VEC2_H_
