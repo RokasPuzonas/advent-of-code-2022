@@ -574,6 +574,7 @@ static void assert_face_table_is_correct()
 
 static void day22_part2(void *p)
 {
+	/*
 	assert_face_table_is_correct();
 
 	day22_data *data = (day22_data*)p;
@@ -590,6 +591,7 @@ static void day22_part2(void *p)
 
 	vec2 pos = start;
 	day22_facing dir = FACING_RIGHT;
+	*/
 	// day22_follow_instructions(&cube_map, insts, &pos, &dir, (step_cb)day22_cube_step);
 
 	// u32 answer = (pos.y+1) * 1000 + (pos.x+1) * 4 + dir;
