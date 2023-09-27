@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define SIGN(x) (x == 0 ? 0 : (x > 0 ? 1 : -1))
+#define SIGN(x) ((x) == 0 ? 0 : ((x) > 0 ? 1 : -1))
 #define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
 
 typedef uint8_t u8;

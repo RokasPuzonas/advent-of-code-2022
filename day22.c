@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
@@ -50,118 +51,6 @@ typedef struct {
 	u32 height;
 } day22_map;
 
-//  N   T
-// W E
-//  S   B
-//
-// Reference image: https://media.printables.com/media/prints/209926/images/1928241_bf5690f2-3397-4519-aa4a-43afc07c0eaa/thumbs/inside/1920x1440/jpg/dice.webp
-// Reference model: https://sketchfab.com/3d-models/6-sided-dice-7564358b73614881a1e838a0827f10f8
-// Unwrapped faces, based on 6-sided die:
-//  N    3
-//  T    1
-// WSE  542
-//  B    6
-//
-typedef enum {
-	FACE_TOP,    // 0
-	FACE_EAST,   // 1
-	FACE_NORTH,  // 2
-	FACE_SOUTH,  // 3
-	FACE_WEST,   // 4
-	FACE_BOTTOM, // 5
-} day22_face;
-char *g_day22_face_str[] = {
-	[FACE_TOP   ] = "top",
-	[FACE_EAST  ] = "east",
-	[FACE_NORTH ] = "north",
-	[FACE_SOUTH ] = "south",
-	[FACE_WEST  ] = "west",
-	[FACE_BOTTOM] = "bottom",
-};
-day22_face g_day22_relface[6][4] = {
-	[FACE_TOP] = {
-		[FACING_RIGHT] = FACE_EAST,
-		[FACING_DOWN ] = FACE_SOUTH,
-		[FACING_LEFT ] = FACE_WEST,
-		[FACING_UP   ] = FACE_NORTH,
-	},
-	[FACE_EAST] = {
-		[FACING_RIGHT] = FACE_NORTH,
-		[FACING_DOWN ] = FACE_BOTTOM,
-		[FACING_LEFT ] = FACE_SOUTH,
-		[FACING_UP   ] = FACE_TOP,
-	},
-	[FACE_NORTH] = {
-		[FACING_RIGHT] = FACE_EAST,
-		[FACING_DOWN ] = FACE_TOP,
-		[FACING_LEFT ] = FACE_WEST,
-		[FACING_UP   ] = FACE_BOTTOM,
-	},
-	[FACE_SOUTH] = {
-		[FACING_RIGHT] = FACE_EAST,
-		[FACING_DOWN ] = FACE_BOTTOM,
-		[FACING_LEFT ] = FACE_WEST,
-		[FACING_UP   ] = FACE_TOP,
-	},
-	[FACE_WEST] = {
-		[FACING_RIGHT] = FACE_SOUTH,
-		[FACING_DOWN ] = FACE_BOTTOM,
-		[FACING_LEFT ] = FACE_NORTH,
-		[FACING_UP   ] = FACE_TOP,
-	},
-	[FACE_BOTTOM] = {
-		[FACING_RIGHT] = FACE_EAST,
-		[FACING_DOWN ] = FACE_NORTH,
-		[FACING_LEFT ] = FACE_WEST,
-		[FACING_UP   ] = FACE_SOUTH,
-	},
-};
-
-day22_facing g_day22_relfacing[6][4] = {
-	[FACE_TOP] = {
-		[FACING_RIGHT] = FACING_DOWN,
-		[FACING_DOWN ] = FACING_DOWN,
-		[FACING_LEFT ] = FACING_DOWN,
-		[FACING_UP   ] = FACING_UP,
-	},
-	[FACE_EAST] = {
-		[FACING_RIGHT] = FACING_LEFT,
-		[FACING_DOWN ] = FACING_LEFT,
-		[FACING_LEFT ] = FACING_LEFT,
-		[FACING_UP   ] = FACING_LEFT,
-	},
-	[FACE_NORTH] = {
-		[FACING_RIGHT] = FACING_LEFT,
-		[FACING_DOWN ] = FACING_DOWN,
-		[FACING_LEFT ] = FACING_RIGHT,
-		[FACING_UP   ] = FACING_UP,
-	},
-	[FACE_SOUTH] = {
-		[FACING_RIGHT] = FACING_RIGHT,
-		[FACING_DOWN ] = FACING_DOWN,
-		[FACING_LEFT ] = FACING_LEFT,
-		[FACING_UP   ] = FACING_UP,
-	},
-	[FACE_WEST] = {
-		[FACING_RIGHT] = FACING_RIGHT,
-		[FACING_DOWN ] = FACING_RIGHT,
-		[FACING_LEFT ] = FACING_RIGHT,
-		[FACING_UP   ] = FACING_RIGHT,
-	},
-	[FACE_BOTTOM] = {
-		[FACING_RIGHT] = FACING_UP,
-		[FACING_DOWN ] = FACING_DOWN,
-		[FACING_LEFT ] = FACING_UP,
-		[FACING_UP   ] = FACING_UP,
-	},
-};
-
-
-typedef struct {
-	day22_map *map;
-	vec2 faces[6];
-	u32 face_size;
-} day22_cube_map;
 
 typedef struct {
 	day22_instruction_op op;
@@ -319,7 +208,7 @@ static day22_tile day22_get_tile(day22_map *map, i32 x, i32 y)
 	return map->tiles[idx];
 }
 
-static bool day22_step(day22_map *map, vec2 *pos, day22_facing *dir)
+static bool day22_step_part1(day22_map *map, vec2 *pos, day22_facing *dir)
 {
 	vec2 next_pos = *pos;
 	vec2 *step = &g_day22_dirs[*dir];
@@ -379,223 +268,519 @@ static void day22_part1(void *p)
 
 	vec2 pos = day22_starting_pos(map);
 	day22_facing dir = FACING_RIGHT;
-	day22_follow_instructions(map, insts, &pos, &dir, (step_cb)day22_step);
+	day22_follow_instructions(map, insts, &pos, &dir, (step_cb)day22_step_part1);
 
 	u32 answer = (pos.y+1) * 1000 + (pos.x+1) * 4 + dir;
 	printf("%d\n", answer);
 }
 
-static day22_face day22_cube_map_face(day22_cube_map *cube_map, i32 x, i32 y)
+static u32 day22_get_cube_size(day22_map *map)
 {
-	x = x / cube_map->face_size * cube_map->face_size;
-	y = y / cube_map->face_size * cube_map->face_size;
-	for (int i = 0; i < ARRAY_LEN(cube_map->faces); i++) {
-		vec2 *face = &cube_map->faces[i];
-		if (face->x == x && face->y == y) {
-			return i;
-		}
-	}
-	return 9;
-}
-
-static void day22_print_cube_map_faces(day22_cube_map *cube_map)
-{
-	day22_map *map = cube_map->map;
+	u32 surface_area = 0;
 	for (int y = 0; y < map->height; y++) {
 		for (int x = 0; x < map->width; x++) {
-			u32 idx = y * map->width + x;
-			if (map->tiles[idx] != TILE_VOID) {
-				printf("%d", day22_cube_map_face(cube_map, x, y));
-			} else {
-				printf(" ");
+			day22_tile tile = map->tiles[y * map->width + x];
+			surface_area += (tile != TILE_VOID);
+		}
+	}
+
+	assert(surface_area % 6 == 0);
+	return sqrtf((float)surface_area/6);
+}
+
+static bool day22_has_void_neighbour(day22_map *map, int x, int y)
+{
+	for (int i = 0; i < ARRAY_LEN(g_day22_dirs); i++) {
+		vec2 dir = g_day22_dirs[i];
+		if (day22_get_tile(map, x+dir.x, y+dir.y) == TILE_VOID) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool day22_is_going_along_edge(day22_map *map, int from_x, int from_y, int dir_x, int dir_y, int steps)
+{
+	for (int i = 1; i < steps; i++) {
+		int probe_x = from_x + dir_x * i;
+		int probe_y = from_y + dir_y * i;
+		if (!day22_has_void_neighbour(map, probe_x, probe_y)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+static bool day22_contains_vec2(vec2_u32 *list, int size, int x, int y) {
+	for (int i = 0; i < size; i++) {
+		if (list[i].x == x && list[i].y == y) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static vec2 day22_apply_facing(int x, int y, day22_facing facing, int distance)
+{
+	vec2 *dir = &g_day22_dirs[facing];
+	vec2 result = {
+		x + dir->x * distance,
+		y + dir->y * distance,
+	};
+	return result;
+}
+
+typedef struct { vec2_u32 start; vec2_u32 end; } day22_edge;
+
+static day22_edge day22_flip_edge(day22_edge edge)
+{
+	day22_edge flipped_edge = { .start = edge.end, .end = edge.start };
+	return flipped_edge;
+}
+
+static vec2 day22_get_edge_dir(day22_edge edge) {
+	vec2 dir = {
+		SIGN((int)edge.end.x - (int)edge.start.x),
+		SIGN((int)edge.end.y - (int)edge.start.y),
+	};
+	return dir;
+}
+
+static bool day22_is_on_edge(day22_edge edge, int x, int y) {
+	if (edge.start.x == edge.end.x) {
+		int min_y = MIN(edge.start.y, edge.end.y);
+		int max_y = MAX(edge.start.y, edge.end.y);
+		return x == edge.start.x && (min_y <= y && y <= max_y);
+	} else if (edge.start.y == edge.end.y) {
+		int min_x = MIN(edge.start.x, edge.end.x);
+		int max_x = MAX(edge.start.x, edge.end.x);
+		return y == edge.start.y && (min_x <= x && x <= max_x);
+	} else {
+		assert(false && "unreachable");
+	}
+}
+
+static bool day22_is_closer_to_end(day22_edge edge, int x, int y) {
+	if (edge.start.x == edge.end.x) {
+		return abs((int)edge.end.y - y) < abs((int)edge.start.y - y);
+	} else if (edge.start.y == edge.end.y) {
+		return abs((int)edge.end.x - x) < abs((int)edge.start.x - x);
+	} else {
+		assert(false && "unreachable");
+	}
+}
+
+static void day22_print_map_with_edges(day22_map *map, day22_edge *from_edges, day22_edge *to_edges, int edge_pair_count)
+{
+	for (int y = 0; y < map->height; y++) {
+		for (int x = 0; x < map->width; x++) {
+			bool found = false;
+			for (int i = 0; i < edge_pair_count; i++) {
+				day22_edge edge = {};
+				if (day22_is_on_edge(from_edges[i], x, y)) {
+					edge = from_edges[i];
+				} else if (day22_is_on_edge(to_edges[i], x, y)) {
+					edge = to_edges[i];
+				} else {
+					continue;
+				}
+
+				printf("%c", 'a' + i - (day22_is_closer_to_end(edge, x, y) ? 32 : 0));
+				found = true;
+				break;
 			}
+			if (found) continue;
+
+			u32 idx = y * map->width + x;
+			day22_tile tile = map->tiles[idx];
+			printf("%c", g_day22_tiles[tile]);
 		}
 		printf("\n");
 	}
 }
 
-static void day22_cube_map_init(day22_cube_map *cube_map, day22_map *map, vec2 *top_face)
-{
-	cube_map->map = map;
+static int inc_cw(int cw, int size) {
+	return (cw+1) % size;
+}
 
-	u32 surface_area = 0;
-	for (int y = 0; y < map->height; y++) {
-		for (int x = 0; x < map->width; x++) {
-			u32 idx = y * map->width + x;
-			surface_area += (map->tiles[idx] != TILE_VOID);
+static int inc_ccw(int ccw, int size) {
+	return (ccw-1+size) % size;
+}
+
+static void day22_get_edge_transitions(day22_map *map, day22_edge *from_edges, day22_edge *to_edges, int *edge_pair_count)
+{
+	u32 cube_size = day22_get_cube_size(map);
+
+	vec2_u32 face_cursor = { -1, -1 };
+	for (int x = 0; x < map->width; x += cube_size) {
+		if (map->tiles[x] != TILE_VOID) {
+			face_cursor.x = x;
+			face_cursor.y = 0;
+			break;
 		}
 	}
+	assert(face_cursor.x != -1 && face_cursor.y != -1);
 
-	u32 face_size = sqrt((float)surface_area/6);
-	assert(face_size != 0);
+	// Step 1 - find faces
+	vec2_u32 found_faces[6];
+	int face_count = 0;
+	{
+		vec2 first_face = day22_starting_pos(map);
+		face_count = 1;
+		found_faces[0].x = first_face.x;
+		found_faces[0].y = first_face.y;
 
-	cube_map->face_size = face_size;
+		vec2_u32 face_stack[6];
+		int stack_size = 1;
 
+		face_stack[0].x = first_face.x;
+		face_stack[0].y = first_face.y;
 
-	if (face_size == 4) { // Example case
-		cube_map->faces[FACE_TOP] = *top_face;
+		while (stack_size > 0) {
+			vec2_u32 cur_face = face_stack[stack_size-1];
+			stack_size--;
 
-		cube_map->faces[FACE_SOUTH] = cube_map->faces[FACE_TOP];
-		cube_map->faces[FACE_SOUTH].y += 4;
+			for (int i = 0; i < ARRAY_LEN(g_day22_dirs); i++) {
+				vec2 *dir = &g_day22_dirs[i];
+				vec2 next_face = {
+					cur_face.x + dir->x * cube_size,
+					cur_face.y + dir->y * cube_size,
+				};
+				if (day22_get_tile(map, next_face.x, next_face.y) == TILE_VOID) continue;
+				if (day22_contains_vec2(found_faces, face_count, next_face.x, next_face.y)) continue;
 
-		cube_map->faces[FACE_WEST] = cube_map->faces[FACE_SOUTH];
-		cube_map->faces[FACE_WEST].x -= face_size;
+				found_faces[face_count].x = next_face.x;
+				found_faces[face_count].y = next_face.y;
+				face_count++;
 
-		cube_map->faces[FACE_NORTH] = cube_map->faces[FACE_WEST];
-		cube_map->faces[FACE_NORTH].x -= face_size;
-
-		cube_map->faces[FACE_BOTTOM] = cube_map->faces[FACE_SOUTH];
-		cube_map->faces[FACE_BOTTOM].y += face_size;
-
-		cube_map->faces[FACE_EAST] = cube_map->faces[FACE_BOTTOM];
-		cube_map->faces[FACE_EAST].x += face_size;
-	} else { // User case
-		cube_map->faces[FACE_TOP] = *top_face;
-
-		cube_map->faces[FACE_EAST] = cube_map->faces[FACE_TOP];
-		cube_map->faces[FACE_EAST].x += face_size;
-
-		cube_map->faces[FACE_SOUTH] = cube_map->faces[FACE_TOP];
-		cube_map->faces[FACE_SOUTH].y += face_size;
-
-		cube_map->faces[FACE_BOTTOM] = cube_map->faces[FACE_SOUTH];
-		cube_map->faces[FACE_BOTTOM].y += face_size;
-
-		cube_map->faces[FACE_WEST] = cube_map->faces[FACE_BOTTOM];
-		cube_map->faces[FACE_WEST].x -= face_size;
-
-		cube_map->faces[FACE_NORTH] = cube_map->faces[FACE_WEST];
-		cube_map->faces[FACE_NORTH].y += face_size;
-	}
-
-	// TODO: To hell with this, too complicated for now. Stitching cube faces
-	// https://www.youtube.com/watch?v=qWgLdNFYDDo
-	/*
-	bool found_faces[6] = { 0 };
-	day22_face stack_faces[6];
-	day22_facing stack_incoming_facing[6];
-	vec2 stack_positions[6];
-	int stack_size;
-	static_assert(ARRAY_LEN(stack_faces) == ARRAY_LEN(stack_positions), "stack size is inconsistent");
-
-	stack_positions[0] = *top_face;
-	stack_faces[0] = FACE_TOP;
-	stack_incoming_facing[0] = FACING_DOWN;
-	found_faces[FACE_TOP] = true;
-	stack_size = 1;
-
-	while (stack_size > 0) {
-		vec2 pos = stack_positions[stack_size-1];
-		day22_face face = stack_faces[stack_size-1];
-		day22_facing initial_facing = stack_incoming_facing[stack_size-1];
-		stack_size--;
-
-		cube_map->faces[face] = pos;
-
-		day22_facing new_facings[] = {
-			initial_facing,
-			day22_turn_left(initial_facing),
-			day22_turn_right(initial_facing)
-		};
-		for (int i = 0; i < ARRAY_LEN(new_facings); i++) {
-			day22_facing new_facing = new_facings[i];
-			vec2 *dir = &g_day22_dirs[new_facing];
-			// if (face == FACE_NORTH) {
-			// 	dir = &g_day22_dirs[day22_turn_180(new_facing)];
-			// }
-
-			i32 x = pos.x + face_size * dir->x;
-			i32 y = pos.y + face_size * dir->y;
-			if (day22_in_bounds(map, x, y) && day22_get_tile(map, x, y) != TILE_VOID) {
-				// day22_facing rel_new_facing = (4 + initial_facing - new_facing) % 4;
-				day22_face new_face = g_day22_relface[face][new_facing];
-
-				printf("found face %s(%d) from %s(%d) by going %s(%d)\n", g_day22_face_str[new_face], new_face, g_day22_face_str[face], face, g_day22_facing_str[new_facing], new_facing);
-				if (found_faces[new_face]) {
-					printf("already found\n");
-					continue;
-				}
-				stack_positions[stack_size].x = x;
-				stack_positions[stack_size].y = y;
-				stack_faces[stack_size] = new_face;
-				stack_incoming_facing[stack_size] = new_facing;
-				found_faces[new_face] = true;
-
+				face_stack[stack_size].x = next_face.x;
+				face_stack[stack_size].y = next_face.y;
 				stack_size++;
-				assert(stack_size < ARRAY_LEN(stack_positions));
 			}
 		}
 	}
-	*/
-}
+	assert(face_count == 6);
 
-static void day22_map_edge(day22_cube_map *cube_map, day22_face from_face, day22_facing from_facing, day22_face to_face, day22_facing to_facing, vec2 *pos)
-{
-	// TODO:
-}
+	// Step 2 - find all edges
+	int max_edges = 16;
+	day22_edge edges[max_edges];
+	int edge_count = 0;
 
-static bool day22_cube_step(day22_cube_map *cube_map, vec2 *pos, day22_facing *dir)
-{
-	day22_facing next_dir = *dir;
-	vec2 next_pos = *pos;
+	{
+		for (int i = 0; i < face_count; i++) {
+			// printf("face (%d, %d)\n", found_faces[i].x, found_faces[i].y);
+			for (int facing = 0; facing < ARRAY_LEN(g_day22_dirs); facing++) {
+				vec2 dir = g_day22_dirs[facing];
+				if (day22_get_tile(map, found_faces[i].x + dir.x * cube_size, found_faces[i].y + dir.y * cube_size) == TILE_VOID) {
+					assert(edge_count < max_edges-1);
+					vec2_u32 edge_start = found_faces[i];
+					vec2_u32 edge_end = found_faces[i];
+					switch(facing) {
+					case FACING_UP:
+						edge_end.x += cube_size-1;
+						break;
+					case FACING_DOWN:
+						edge_start.x += cube_size-1;
+						edge_start.y += cube_size-1;
+						edge_end.y += cube_size-1;
+						break;
+					case FACING_LEFT:
+						edge_start.y += cube_size-1;
+						break;
+					case FACING_RIGHT:
+						edge_start.x += cube_size-1;
+						edge_end.x += cube_size-1;
+						edge_end.y += cube_size-1;
+						break;
+					}
 
-	next_pos.x += g_day22_dirs[next_dir].x;
-	next_pos.y += g_day22_dirs[next_dir].y;
+					// printf("edge (%d, %d) -> (%d, %d)\n", edge_start.x, edge_start.y, edge_end.x, edge_end.y);
 
-	if (day22_get_tile(cube_map->map, next_pos.x, next_pos.y) == TILE_VOID) {
-		day22_face face = day22_cube_map_face(cube_map, pos->x, pos->y);
-		day22_face new_face = g_day22_relface[face][*dir];
-		next_dir = g_day22_relfacing[face][*dir];
-		day22_map_edge(cube_map, face, *dir, new_face, next_dir, &next_pos);
+					edges[edge_count].start.x = edge_start.x;
+					edges[edge_count].start.y = edge_start.y;
+					edges[edge_count].end.x   = edge_end.x;
+					edges[edge_count].end.y   = edge_end.y;
+					edge_count++;
+				}
+			}
+		}
 	}
 
-	if (day22_get_tile(cube_map->map, next_pos.x, next_pos.y) == TILE_EMPTY) {
+	// Step 3 - stich edges into a clockwise loop
+	int loop_edges[edge_count];
+	int loop_length = 0;
+	{
+		loop_edges[0] = 0;
+		loop_length++;
+
+		while (loop_length < edge_count) {
+			day22_edge last_edge = edges[loop_edges[loop_length-1]];
+			// printf("loop_length: %d (%d, %d) -> (%d, %d)\n", loop_length, last_edge.start.x, last_edge.start.y, last_edge.end.x, last_edge.end.y);
+			vec2 edge_dir = day22_get_edge_dir(last_edge);
+			// printf("dir: (%d, %d)\n", edge_dir.x, edge_dir.y);
+
+			for (int i = 0; i < edge_count; i++) {
+				bool is_edge_used = false;
+				for (int j = 0; j < loop_length; j++) {
+					if (loop_edges[j] == i) {
+						is_edge_used = true;
+						break;
+					}
+				}
+				if (is_edge_used) continue;
+
+				// printf("check: %d\n", i);
+				vec2 check_offsets[] = {
+					{ 0, 0 },
+					edge_dir,
+					{ edge_dir.x + -edge_dir.y, edge_dir.y +  edge_dir.x },
+					{ edge_dir.x +  edge_dir.y, edge_dir.y + -edge_dir.x },
+				};
+				bool edge_connects = false;
+				for (int j = 0; j < ARRAY_LEN(check_offsets); j++) {
+					if (last_edge.end.x + check_offsets[j].x == edges[i].start.x &&
+						last_edge.end.y + check_offsets[j].y == edges[i].start.y) {
+						edge_connects = true;
+						break;
+					}
+				}
+
+				if (edge_connects) {
+					// printf("next: (%d, %d) -> (%d, %d)\n", edges[i].start.x, edges[i].start.y, edges[i].end.x, edges[i].end.y);
+					loop_edges[loop_length] = i;
+					loop_length++;
+					break;
+				}
+			}
+		}
+	}
+
+	// Step 4 - find inner corners
+	int inner_corners[edge_count];
+	int inner_corner_count = 0;
+
+	for (int i = 0; i < loop_length; i++) {
+		day22_edge edge = edges[loop_edges[i]];
+		day22_edge next_edge = edges[loop_edges[(i + 1) %  loop_length]];
+
+		int dx = edge.end.x - next_edge.start.x;
+		int dy = edge.end.y - next_edge.start.y;
+		if (dx != 0 && dy != 0) {
+			inner_corners[inner_corner_count] = i;
+			inner_corner_count++;
+		}
+	}
+
+	#define APPEND_EDGE_PAIR(edge_a, edge_b) \
+		from_edges[*edge_pair_count] = edge_a;                                                               \
+		to_edges[*edge_pair_count] = edge_b;                                                                 \
+		(*edge_pair_count)++;
+
+	*edge_pair_count = 0;
+
+	// Step 5 - stich edges to form cube
+	for (int i = 0; i < inner_corner_count; i++) {
+		int cw_idx  = (inner_corners[i]+1) % loop_length;
+		int ccw_idx = inner_corners[i];
+
+		while (true) {
+			APPEND_EDGE_PAIR(
+				edges[loop_edges[cw_idx]],
+				day22_flip_edge(edges[loop_edges[ccw_idx]])
+			);
+
+			int next_cw_idx = inc_cw(cw_idx, loop_length);
+			int next_ccw_idx = inc_ccw(ccw_idx, loop_length);
+
+			bool is_cw_straight = vec2_eq2(
+					day22_get_edge_dir(edges[loop_edges[cw_idx]]),
+					day22_get_edge_dir(edges[loop_edges[next_cw_idx]])
+				);
+			bool is_ccw_straight = vec2_eq2(
+					day22_get_edge_dir(edges[loop_edges[ccw_idx]]),
+					day22_get_edge_dir(edges[loop_edges[next_ccw_idx]])
+				);
+
+			if ((!is_cw_straight && !is_ccw_straight) || (is_cw_straight && is_ccw_straight)) {
+				break;
+			}
+
+			cw_idx = next_cw_idx;
+			ccw_idx = next_ccw_idx;
+		}
+	}
+
+	// Extra step - Edge case when not all edges were mapped, when searching from corners
+	if ((*edge_pair_count)*2 < edge_count) {
+		int cw_idx  = (inner_corners[0]+1) % loop_length;
+		while (true) {
+			bool is_point_accounted = false;
+			vec2_u32 point = edges[loop_edges[cw_idx]].start;
+			for (int i = 0; i < *edge_pair_count; i++) {
+				vec2_u32 from_point = from_edges[loop_edges[i]].start;
+				vec2_u32 to_point = to_edges[loop_edges[i]].end;
+				if (vec2_u32_eq2(from_point, point) || vec2_u32_eq2(to_point, point)) {
+					is_point_accounted = true;
+					break;
+				}
+			}
+			if (!is_point_accounted) break;
+
+			cw_idx = inc_cw(cw_idx, loop_length);
+		}
+
+		int ccw_idx = inner_corners[0];
+		while (true) {
+			bool is_point_accounted = false;
+			vec2_u32 point = edges[loop_edges[ccw_idx]].start;
+			for (int i = 0; i < *edge_pair_count; i++) {
+				vec2_u32 from_point = from_edges[loop_edges[i]].start;
+				vec2_u32 to_point = to_edges[loop_edges[i]].end;
+				if (vec2_u32_eq2(from_point, point) || vec2_u32_eq2(to_point, point)) {
+					is_point_accounted = true;
+					break;
+				}
+			}
+			if (!is_point_accounted) break;
+
+			ccw_idx = inc_ccw(ccw_idx, loop_length);
+		}
+
+		while ((*edge_pair_count)*2 < edge_count) {
+			APPEND_EDGE_PAIR(
+				edges[loop_edges[cw_idx]],
+				day22_flip_edge(edges[loop_edges[ccw_idx]])
+			);
+
+			cw_idx = inc_cw(cw_idx, loop_length);
+			ccw_idx = inc_ccw(ccw_idx, loop_length);
+		}
+	}
+}
+
+typedef struct {
+	day22_map *map;
+	day22_edge from_edges[16];
+	day22_edge to_edges[16];
+	int edge_pair_count;
+} map_with_edges;
+
+// Assumes that both directions are one of the cardinals
+static bool do_dirs_cross(vec2 dir1, vec2 dir2) {
+	return (dir1.x != dir2.x && (dir1.x == 0 || dir2.x == 0)) ||
+			(dir1.y != dir2.y && (dir1.y == 0 || dir2.y == 0));
+}
+
+static day22_facing dir_to_facing(vec2 dir) {
+	for (int facing = 0; facing < ARRAY_LEN(g_day22_dirs); facing++) {
+		if (g_day22_dirs[facing].x == dir.x && g_day22_dirs[facing].y == dir.y) {
+			return facing;
+		}
+	}
+	assert(false && "unreachable");
+}
+
+static bool day22_step_part2(map_with_edges *map_with_edges, vec2 *pos, day22_facing *dir)
+{
+	vec2 next_pos = *pos;
+	day22_facing next_facing = *dir;
+	vec2 *step = &g_day22_dirs[*dir];
+
+	next_pos.x += step->x;
+	next_pos.y += step->y;
+	if (day22_get_tile(map_with_edges->map, next_pos.x, next_pos.y) == TILE_VOID) {
+		bool found_match = false;
+		day22_edge src_edge;
+		day22_edge dst_edge;
+
+		for (int i = 0; i < map_with_edges->edge_pair_count; i++) {
+			day22_edge from_edge = map_with_edges->from_edges[i];
+			day22_edge to_edge = map_with_edges->to_edges[i];
+
+			if (day22_is_on_edge(from_edge, pos->x, pos->y)) {
+				if (do_dirs_cross(day22_get_edge_dir(from_edge), *step)) {
+					src_edge = from_edge;
+					dst_edge = to_edge;
+					found_match = true;
+					// printf("use %c\n", 'a' + i);
+					break;
+				}
+			} else if (day22_is_on_edge(to_edge, pos->x, pos->y)) {
+				if (do_dirs_cross(day22_get_edge_dir(to_edge), *step)) {
+					src_edge = to_edge;
+					dst_edge = from_edge;
+					found_match = true;
+					// printf("use %c\n", 'a' + i);
+					break;
+				}
+			}
+		}
+
+		if (found_match) {
+			int dist_along_src = -1;
+			if (src_edge.start.x == src_edge.end.x) {
+				dist_along_src = abs((int)src_edge.start.y - pos->y);
+			} else if (src_edge.start.y == src_edge.end.y) {
+				dist_along_src = abs((int)src_edge.start.x - pos->x);
+			} else {
+				assert(false && "unreachable");
+			}
+
+			vec2 dst_dir = day22_get_edge_dir(dst_edge);
+			next_pos.x = dst_edge.start.x + dst_dir.x * dist_along_src;
+			next_pos.y = dst_edge.start.y + dst_dir.y * dist_along_src;
+
+			vec2 possible_dirs[] = {
+				{ -abs(dst_dir.y), -abs(dst_dir.x) },
+				{ abs(dst_dir.y), abs(dst_dir.x) }
+			};
+			for (int i = 0; i < ARRAY_LEN(possible_dirs); i++) {
+				if (day22_get_tile(map_with_edges->map, next_pos.x + possible_dirs[i].x, next_pos.y + possible_dirs[i].y) != TILE_VOID) {
+					// printf("(%d,%d)\n", possible_dirs[i].x, possible_dirs[i].y);
+					next_facing = dir_to_facing(possible_dirs[i]);
+					break;
+				}
+			}
+
+			// printf("(%d,%d) - (%d,%d) => (%d,%d) - (%d,%d)\n",
+			// 	src_edge.start.x, src_edge.start.y, src_edge.end.x, src_edge.end.y,
+			// 	dst_edge.start.x, dst_edge.start.y, dst_edge.end.x, dst_edge.end.y
+			// );
+		}
+	}
+
+	if (day22_get_tile(map_with_edges->map, next_pos.x, next_pos.y) == TILE_EMPTY) {
 		pos->x = next_pos.x;
 		pos->y = next_pos.y;
-		*dir = next_dir;
+		*dir = next_facing;
 		return true;
 	} else {
 		return false;
 	}
 }
 
-static void assert_face_table_is_correct()
-{
-	for (int face = 0; face < ARRAY_LEN(g_day22_relface); face++) {
-		for (int facing = 0; facing < ARRAY_LEN(g_day22_relface[face]); facing++) {
-			day22_face new_face = g_day22_relface[face][facing];
-			day22_facing new_facing = g_day22_relfacing[face][facing];
-
-			int new_facing_180 = day22_turn_180(new_facing);
-			assert(face == g_day22_relface[new_face][new_facing_180]);
-		}
-	}
-}
-
+// Thank god for this video: https://www.youtube.com/watch?v=qWgLdNFYDDo
+// Could not have done it without this.
 static void day22_part2(void *p)
 {
-	/*
-	assert_face_table_is_correct();
-
 	day22_data *data = (day22_data*)p;
 
 	day22_map *map = &data->map;
 	day22_instructions *insts = &data->instructions;
 
-	vec2 start = day22_starting_pos(map);
+	map_with_edges custom_map = {
+		.map = map,
+		.edge_pair_count = 0
+	};
+	day22_get_edge_transitions(map, custom_map.from_edges, custom_map.to_edges, &custom_map.edge_pair_count);
+	// day22_print_map_with_edges(map, custom_map.from_edges, custom_map.to_edges, custom_map.edge_pair_count);
 
-	day22_cube_map cube_map = { 0 };
-	day22_cube_map_init(&cube_map, map, &start);
-
-	day22_print_cube_map_faces(&cube_map);
-
-	vec2 pos = start;
+	vec2 pos = day22_starting_pos(map);
 	day22_facing dir = FACING_RIGHT;
-	*/
-	// day22_follow_instructions(&cube_map, insts, &pos, &dir, (step_cb)day22_cube_step);
+	day22_follow_instructions(&custom_map, insts, &pos, &dir, (step_cb)day22_step_part2);
 
-	// u32 answer = (pos.y+1) * 1000 + (pos.x+1) * 4 + dir;
-	// printf("%d\n", answer);
+	u32 answer = (pos.y+1) * 1000 + (pos.x+1) * 4 + dir;
+	printf("%d\n", answer);
 }
 
 ADD_SOLUTION(22, day22_parse, day22_part1, day22_part2);
